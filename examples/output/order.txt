@@ -1,0 +1,8 @@
+Order summary
+Customer: Acme & Sons
+Status: Approved
+Quantity	3
+Total	37.50
+Delivery instructions: Leave at reception.
+
+Manager approval required.

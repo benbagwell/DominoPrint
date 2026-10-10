@@ -1,0 +1,18 @@
+<form name="OrderPrint" alias="Order Print">
+  <noteinfo unid="00000000000000000000000000000003" sequence="7"/>
+  <body><richtext>
+    <pardef id="1" align="center" spaceafter="12pt"/>
+    <par def="1"><run><font size="20pt" style="bold"/>Order summary</run></par>
+    <par>Customer: <field name="Customer" type="text" kind="editable"/></par>
+    <par>Status: <field name="StatusLabel" type="text" kind="computedfordisplay"><code event="value"><formula>@Translate("Status";Status)</formula></code></field></par>
+    <table width="100%"><tablerow>
+      <tablecell width="50%" borderwidth="1px"><par>Quantity</par></tablecell>
+      <tablecell width="50%" borderwidth="1px"><par><field name="Quantity" type="number"/></par></tablecell>
+    </tablerow><tablerow>
+      <tablecell borderwidth="1px"><par>Total</par></tablecell>
+      <tablecell borderwidth="1px"><par><field name="Total" type="number" kind="computedfordisplay"><numberformat format="fixed" digits="2"/><code event="value"><formula>Quantity * Price</formula></code></field></par></tablecell>
+    </tablerow></table>
+    <par spacebefore="12pt"><field name="Body" type="richtext"/></par>
+    <par><computedtext><code event="value"><formula>@If(Total &gt; 30;"Manager approval required.";"Standard approval.")</formula></code></computedtext></par>
+  </richtext></body>
+</form>

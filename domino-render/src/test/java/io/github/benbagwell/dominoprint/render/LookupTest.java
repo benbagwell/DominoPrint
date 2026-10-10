@@ -1,0 +1,16 @@
+package io.github.benbagwell.dominoprint.render;
+
+import io.github.benbagwell.dominoprint.formula.*;
+import io.github.benbagwell.dominoprint.model.*;
+import org.junit.jupiter.api.Test;
+import java.time.*;
+import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class LookupTest {
+    DocumentSnapshot doc(String unid,String code,String translation){return new DocumentSnapshot(Map.of("unid",unid),List.of(ItemSnapshot.text("Set","Status"),ItemSnapshot.text("Code",code),ItemSnapshot.text("Label",translation)),"","",List.of());}
+    @Test void mapsCodeDocumentsAndRejectsDuplicates(){var docs=List.of(doc("1","A","Approved"),doc("2","D","Declined"));var codes=CodeTranslations.fromDocuments(docs,new CodeTranslations.Mapping("Set","Code","Label"));assertEquals("Approved",codes.translate("Status","A").string());assertTrue(codes.translate("Status","a").isError());assertThrows(IllegalArgumentException.class,()->CodeTranslations.fromDocuments(List.of(docs.get(0),docs.get(0)),new CodeTranslations.Mapping("Set","Code","Label")));}
+    @Test void performsOrderedMultimatchFieldAndColumnLookups(){var one=doc("1","A","First");var two=doc("2","A","Second");var view=new ViewSnapshot("server","codes.nsf","ByCode",List.of("Alias"),List.of(new ViewSnapshot.Row(FormulaValue.text("A"),Map.of(1,FormulaValue.text("A"),2,FormulaValue.text("First")),one),new ViewSnapshot.Row(FormulaValue.text("A"),Map.of(1,FormulaValue.text("A"),2,FormulaValue.text("Second")),two)),ZoneOffset.UTC);var lookups=new SnapshotLookups(new SnapshotLookups.Location("server","codes.nsf"),List.of(view),Map.of(new SnapshotLookups.Location("","replica"),new SnapshotLookups.Location("server","codes.nsf")),Map.of(),Map.of(),CodeTranslations.empty());var c=EvaluationContext.empty().withLookups(lookups);var e=new FormulaEngine();assertEquals("First;Second",e.evaluate("@DbLookup(\"\":\"NoCache\";\"\";\"Alias\";\"a\";2)",c).value().display(";"));assertEquals("First;Second",e.evaluate("@DbLookup(\"\";\"replica\";\"ByCode\";\"A\";\"Label\")",c).value().display(";"));assertEquals("1;2",e.evaluate("@DbLookup(\"\";\"\";\"ByCode\";\"A\";2;[ReturnDocumentUniqueID])",c).value().display(";"));assertEquals("First;Second",e.evaluate("@DbColumn(\"\";\"\";\"ByCode\";2)",c).value().display(";"));assertEquals("",e.evaluate("@DbLookup(\"\";\"\";\"ByCode\";\"missing\";2;[FailSilent])",c).value().string());}
+    @Test void readDocumentAndProfileFieldsUseSuppliedSnapshots(){var doc=doc("1","A","Approved");var lookups=new SnapshotLookups(new SnapshotLookups.Location("","codes.nsf"),List.of(),Map.of(),Map.of(SnapshotLookups.documentKey("codes.nsf","1"),doc),Map.of(SnapshotLookups.profileKey("codes.nsf","Settings",""),doc),CodeTranslations.empty());var c=EvaluationContext.empty().withLookups(lookups);var e=new FormulaEngine();assertEquals("Approved",e.evaluate("@GetDocField(\"1\";\"Label\")",c).value().string());assertEquals("Approved",e.evaluate("@GetProfileField(\"Settings\";\"Label\")",c).value().string());}
+    @Test void lookupLimitIsEnforced(){var d=doc("1","A","x".repeat(65537));var view=new ViewSnapshot("","","V",List.of(),List.of(new ViewSnapshot.Row(FormulaValue.text("A"),Map.of(1,FormulaValue.text(d.text("Label"))),d)),ZoneOffset.UTC);assertEquals("LOOKUP_TOO_LARGE",view.column(1).error().code());}
+}

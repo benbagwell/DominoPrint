@@ -1,0 +1,7 @@
+**/target/
+.m2/
+.verification/
+reference-captures/
+*.log
+.idea/
+*.iml

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document form="Order">
+  <noteinfo unid="00000000000000000000000000000001" sequence="3"/>
+  <item name="Customer"><text>Acme &amp; Sons</text></item>
+  <item name="Status"><text>A</text></item>
+  <item name="Quantity"><number>3</number></item>
+  <item name="Price"><number>12.5</number></item>
+  <item name="Body"><richtext><par><run><font style="bold"/>Delivery instructions: </run><run>Leave at reception.</run></par></richtext></item>
+</document>

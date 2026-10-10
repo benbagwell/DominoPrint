@@ -1,0 +1,6 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent><groupId>io.github.benbagwell.dominoprint</groupId><artifactId>domino-print-parent</artifactId><version>0.1.0-SNAPSHOT</version></parent>
+  <artifactId>domino-examples</artifactId>
+  <dependencies><dependency><groupId>io.github.benbagwell.dominoprint</groupId><artifactId>domino-render</artifactId></dependency></dependencies>
+</project>
